@@ -32,7 +32,7 @@ def open_folder():
                           os.path.isdir(os.path.join(base_folder, folder))]
 
         # 初始化顯示第一個學生的資料夾內容
-        display_student_data(student_folder[0])
+        display_student_data(student_folder[0]) 
 
         student_buttons = ttk.Frame(student_buttons_frame)
         student_buttons.pack(side=tk.LEFT)
