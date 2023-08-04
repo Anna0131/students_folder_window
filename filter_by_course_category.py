@@ -15,38 +15,63 @@ from tkvideo import tkvideo
 
 nb = None
 student_buttons = None
-# 選擇資料夾，將該資料夾下的檔案顯示在 ttk.Notebook 中
+mode = None  
 def open_folder():
-    global base_folder, student_buttons_frame, nb
-    base_folder = r"C:\code_practice\json_student\json_student\000001"
-
+    global base_folder, nb, mode
+    #base_folder = r"C:\code_practice\json_student\json_student\000001"
+    base_folder = filedialog.askdirectory()  # 讓使用者選擇資料夾
     if base_folder:
-        if nb:
-            nb.destroy()
-        nb = ttk.Notebook(root)
+        # 模式選擇
+        mode_selection_window = tk.Toplevel(root)
+        mode_selection_window.title("選擇模式")
+        mode_label = ttk.Label(mode_selection_window, text="請選擇模式：")
+        mode_label.pack(pady=10)
 
-        student_buttons_frame = ttk.Frame(root)  # 學生切換清單
+        def apply_mode():
+            global mode  # 声明要使用的是全局變數 'mode'
+            mode = "申請模式"
+            mode_selection_window.destroy()
+            start_with_mode(mode)
 
-        # 放所有學生資料夾的完整路徑
-        student_folder = [os.path.join(base_folder, folder) for folder in os.listdir(base_folder) if
-                          os.path.isdir(os.path.join(base_folder, folder))]
+        def not_apply_mode():
+            global mode  # 声明要使用的是全局變數 'mode'
+            mode = "非申請模式"
+            mode_selection_window.destroy()
+            start_with_mode(mode)
 
-        # 初始化顯示第一個學生的資料夾內容
-        display_student_data(student_folder[0]) 
+        apply_mode_button = ttk.Button(mode_selection_window, text="申請模式", command=apply_mode)
+        apply_mode_button.pack(pady=5)
 
-        student_buttons = ttk.Frame(student_buttons_frame)
-        student_buttons.pack(side=tk.LEFT)
+        not_apply_mode_button = ttk.Button(mode_selection_window, text="非申請模式", command=not_apply_mode)
+        not_apply_mode_button.pack(pady=5)
 
-        for folder in student_folder:
-            student_name = os.path.basename(folder)  # 獲取學生資料夾的名稱
-            ttk.Button(student_buttons, text=student_name, command=lambda f=folder: display_student_data(f)).pack(
-                side=tk.TOP)
+        def start_with_mode(choose_mode):
+            print("選擇是:", choose_mode)  # 印出 'mode' 的值
+            global nb 
+            if nb:
+                nb.destroy()
+            nb = ttk.Notebook(root)
+            student_buttons_frame = ttk.Frame(root)  # 學生切換清單
+            
+            # 放所有學生資料夾的完整路徑
+            student_folder = [os.path.join(base_folder, folder) for folder in os.listdir(base_folder) if
+                            os.path.isdir(os.path.join(base_folder, folder))]
 
-        # 將學生切換清單 Frame 和 notebook 放入主視窗中
-        student_buttons_frame.pack(side=tk.RIGHT, fill="y")
-        nb.pack(side=tk.LEFT, fill="both", expand=True)  # 將 nb 放置在 student_buttons_frame 的左側
+            # 初始化顯示第一個學生的資料夾內容
+            display_student_data(student_folder[0],choose_mode) 
+            student_buttons = ttk.Frame(student_buttons_frame)
+            student_buttons.pack(side=tk.LEFT)
 
-def display_student_data(folder):
+            for folder in student_folder:
+                student_name = os.path.basename(folder)  # 獲取學生資料夾的名稱
+                ttk.Button(student_buttons, text=student_name, command=lambda f=folder: display_student_data(f,choose_mode)).pack(
+                    side=tk.TOP)
+
+            # 將學生切換清單 Frame 和 notebook 放入主視窗中
+            student_buttons_frame.pack(side=tk.RIGHT, fill="y")
+            nb.pack(side=tk.LEFT, fill="both", expand=True)  # 將 nb 放置在 student_buttons_frame 的左側
+
+def display_student_data(folder,choose_mode):
     global nb
     if nb:
         # 刪除現有的 notebook 頁面
@@ -57,37 +82,78 @@ def display_student_data(folder):
     # 遍歷學生資料夾下的所有檔案
     for filename in os.listdir(folder):
         filepath = os.path.join(folder, filename)
-        display_file(filename, nb, filepath)
+        display_file(filename, nb, filepath,choose_mode)
 
     # 將 notebook 放入主視窗中
     nb.pack(side=tk.LEFT, fill="both", expand=True)  # 將 nb 放置在 student_buttons_frame 的左側
 
-# 顯示指定類型的文件內容
-def display_file(filename, nb, filepath): 
-    # filename = 要顯示的文件名
-    # nb = 顯示 JSON 文件內容的 ttk.Notebook 對象 ，可以將多個頁面添加到nb中
+# 依據檔案類型顯示該學生所有檔案(filename = 要顯示的文件名)
+def display_file(filename, nb, filepath,choose_mode):    
     if filename.endswith(".json") and "修課紀錄" in filename: # 如果文件名以 ".json" 結尾      
         page = ttk.Frame(nb) # 創建新的 Frame
         tree = ttk.Treeview(page, columns=("學年度", "學期", "課程類別", "科目名稱", "學分數", "學業成績", "推估相對表現"))
         nb.add(page, text=((os.path.basename(filename)).split("_")[-1]).split(".json")[0]) # 將Frame 添加到Notebook 
         create_json_table(filepath,tree)
 
-    
-
     elif filename.endswith(".json") and "LIST" not in filename: # 如果文件名以 ".json" 結尾      
-        page = ttk.Frame(nb) # 創建新的Frame 
-        nb.add(page, text=((os.path.basename(filename)).split("_")[-1]).split(".json")[0]) # 將 Frame 添加到 Notebook   
-        main = setCanvas(page)  
-        display_json(filepath, main ) # 顯示 JSON 內容
+        if "課程學習成果" in filename:
+            if choose_mode=="申請模式":
+                page = ttk.Frame(nb) 
+                nb.add(page, text=((os.path.basename(filename)).split("_")[-1]).split(".json")[0]) # 將 Frame 添加到 Notebook   
+                main = setCanvas(page)  
+                display_json_mode_one(filepath, main) # 顯示 JSON 內容
+                
+            elif choose_mode=="非申請模式":
+                page = ttk.Frame(nb)  
+                nb.add(page, text=((os.path.basename(filename)).split("_")[-1]).split(".json")[0]) # 將 Frame 添加到 Notebook   
 
-    
+                # Create a PanedWindow for left and right sections
+                paned_window = tk.PanedWindow(page, orient=tk.VERTICAL)
+                paned_window.grid(row=0, column=0, sticky="nsew")
+
+                # Create left and right frames
+                left_frame = tk.Frame(paned_window)
+                right_frame = tk.Frame(paned_window)
+
+                # Add the frames to the PanedWindow
+                paned_window.add(left_frame)
+                paned_window.add(right_frame)
+                # 在左半部分(上半部)加入標題
+                ttk.Label(left_frame, text="專題實作及實習科目學習成果").pack(pady=10)
+                # 在右半部分(下半部)加入標題
+                ttk.Label(right_frame, text="其他課程學習成果").pack(pady=10)
+                main_left = setCanvas(left_frame)
+                main_right = setCanvas(right_frame)
+                display_json_mode_two(filepath, main_left,main_right)
+                page.grid_rowconfigure(0, weight=1)
+                page.grid_columnconfigure(0, weight=1)
+                left_frame.grid_rowconfigure(0, weight=1)
+                left_frame.grid_columnconfigure(0, weight=1)
+                right_frame.grid_rowconfigure(0, weight=1)
+                right_frame.grid_columnconfigure(0, weight=1)
+        else:# 基本資料、多元表現
+            page = ttk.Frame(nb) 
+            nb.add(page, text=((os.path.basename(filename)).split("_")[-1]).split(".json")[0]) # 將 Frame 添加到 Notebook   
+            main = setCanvas(page)  
+            display_json_mode_one(filepath, main) # 顯示 JSON 內容
+
     elif filepath.endswith(".pdf") :
         if "多元表現綜整心得" or "其他" or "學習歷程自述" in filename:
             page = ttk.Frame(nb) # 創建新的Frame
             nb.add(page, text=((os.path.basename(filename)).split("_")[-1]).split(".json")[0]) # 將Frame 添加到Notebook
             main = setCanvas(page)
             display_else_pdf(filepath, main, 0)
-                              
+
+
+def display_course_performance(filepath):
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # 獲取每一筆資料的 "成果類別代碼" 值
+    for record in data:
+        if "成果類別代碼" in record:
+            result_code = record["成果類別代碼"]
+
 def display_else_pdf(filename, page,row):
     ttk.Label(page, text=filename).grid(column=0, row=row, sticky="W")
     button = tk.Button(page, text="顯示檔案", command=lambda : show_file(filename))
@@ -228,8 +294,7 @@ def create_json_table(filename, tree):
                 (record["課程代碼"][16] == "1" or record["課程代碼"][16] == "3") and  # 課程類別為部定必修、選修-加深加廣選修
                 record["課程代碼"][-5] == "1"  # 科目屬性：一般科目
             ]
-
-        
+       
         elif num==2: #其他多元特色及專業課程 下拉選單           
             if selected_domain=="校訂必修及選修":  
                 selected_courses = [ # 篩選符合選擇的課程
@@ -286,13 +351,63 @@ def sort_treeview(tree, col, reverse):
     # 更改欄位標題的點擊事件，切換排序順序
     tree.heading(col, command=lambda: sort_treeview(tree, col, not reverse))
 
-
-# filename = 檔案名稱 / page = 顯示的頁面（一個 Tkinter Frame）
-#List=dict / 多元表現=dict / 修課紀錄=dict / 基本資料=dict / 課程學習成果=list
-def display_json(filename, page): # 顯示 JSON 檔案的內容
+def display_json_mode_two(filename,main_left,main_right):
     with open(filename, "r", encoding="utf-8") as f:
-        data = json.load(f) # 將 JSON 格式的數據轉換為 Python 對象，ex字典、列表   
+        data = json.load(f) 
     row = 0  
+    
+    for dictionary in data:
+        category_code = dictionary["成果類別代碼"]
+        if category_code == "1":
+            for kk, vv in dictionary.items(): # 該字典每一項鍵值對
+                if kk in ["課程學習成果文件檔案連結", "課程學習成果影音檔案連結", "外部影音連結"]:    
+                    filepath = os.path.join(os.path.dirname(filename), vv)                
+                    ttk.Label(main_left, text=kk).grid(column=0, row=row, sticky="W")
+                    if os.path.isfile(filepath):
+                        button = tk.Button(main_left, text="顯示檔案", command=lambda filepath=filepath: show_file(filepath))
+                        button.grid(column=1, row=row, sticky="W")                               
+                    else:
+                        ttk.Label(main_left, text="無").grid(column=1, row=row, sticky="W")
+                    row+=1 
+
+                elif isinstance(vv, dict): # 如果值是一個字典
+                    ttk.Label(main_left, text=kk+": ").grid(column=0, row=row, sticky="W") 
+                    for k, v in vv.items():
+                        ttk.Label(main_left, text=k+": ").grid(column=1, row=row, sticky="W")
+                        ttk.Label(main_left, text=v, wraplength=1000, anchor="w", justify="left").grid(column=2, row=row, sticky="W")
+                        row += 1
+                else:  # 如果值不是一個字典，則只顯示鍵和值
+                    ttk.Label(main_left, text=kk+": ").grid(column=0, row=row, sticky="W")
+                    ttk.Label(main_left, text=vv, wraplength=1000, anchor="w", justify="left").grid(column=1, row=row, sticky="W")
+                    row += 1  
+        elif category_code == "2":
+            for kk, vv in dictionary.items(): # 該字典每一項鍵值對
+                if kk in ["課程學習成果文件檔案連結", "課程學習成果影音檔案連結", "外部影音連結"]:    
+                    filepath = os.path.join(os.path.dirname(filename), vv)                
+                    ttk.Label(main_right, text=kk).grid(column=0, row=row, sticky="W")
+                    if os.path.isfile(filepath):
+                        button = tk.Button(main_right, text="顯示檔案", command=lambda filepath=filepath: show_file(filepath))
+                        button.grid(column=1, row=row, sticky="W")                               
+                    else:
+                        ttk.Label(main_right, text="無").grid(column=1, row=row, sticky="W")
+                    row+=1 
+
+                elif isinstance(vv, dict): # 如果值是一個字典
+                    ttk.Label(main_right, text=kk+": ").grid(column=0, row=row, sticky="W") 
+                    for k, v in vv.items():
+                        ttk.Label(main_right, text=k+": ").grid(column=1, row=row, sticky="W")
+                        ttk.Label(main_right, text=v, wraplength=1000, anchor="w", justify="left").grid(column=2, row=row, sticky="W")
+                        row += 1
+                else:  # 如果值不是一個字典，則只顯示鍵和值
+                    ttk.Label(main_right, text=kk+": ").grid(column=0, row=row, sticky="W")
+                    ttk.Label(main_right, text=vv, wraplength=1000, anchor="w", justify="left").grid(column=1, row=row, sticky="W")
+                    row += 1  
+
+def display_json_mode_one(filename, page): # 顯示 JSON 檔案的內容
+    with open(filename, "r", encoding="utf-8") as f:
+        data = json.load(f) 
+    row = 0  
+    #多元表現=dict / 修課紀錄=dict / 基本資料=dict
     if type(data)==dict:      
         for key, value in data.items(): # 字典每一項鍵值對          
             key_label = ttk.Label(page, text=key, style="Grey.TLabel") #列出標題
@@ -313,8 +428,6 @@ def display_json(filename, page): # 顯示 JSON 檔案的內容
                             
                             ttk.Label(page, text=kk).grid(column=0, row=row, sticky="W")
                             if os.path.isfile(filepath):
-                                # 創建按鈕
-                                #print(filepath)
                                 button = tk.Button(page, text="顯示檔案", command=lambda filepath=filepath: show_file(filepath))
                                 button.grid(column=1, row=row, sticky="W")                               
                             else:
@@ -328,19 +441,16 @@ def display_json(filename, page): # 顯示 JSON 檔案的內容
                 ttk.Label(page, text=key+": ").grid(column=0, row=row, sticky="W")
                 ttk.Label(page, text=value, wraplength=1000, anchor="w", justify="left").grid(column=1, row=row, sticky="W")
                 row += 1 
-         
-        
+
+    #課程學習成果=list
     elif type(data)==list: 
-        for dictionary in data: #列表中的各個dictionary
-            #print(type(dictionary))         
+
+        for dictionary in data: #列表中的各個dictionary        
             for kk, vv in dictionary.items(): # 該字典每一項鍵值對
                 if kk in ["課程學習成果文件檔案連結", "課程學習成果影音檔案連結", "外部影音連結"]:    
-                    filepath = os.path.join(os.path.dirname(filename), vv)
-                    
+                    filepath = os.path.join(os.path.dirname(filename), vv)                
                     ttk.Label(page, text=kk).grid(column=0, row=row, sticky="W")
                     if os.path.isfile(filepath):
-                        # 創建按鈕
-
                         button = tk.Button(page, text="顯示檔案", command=lambda filepath=filepath: show_file(filepath))
                         button.grid(column=1, row=row, sticky="W")                               
                     else:
@@ -348,7 +458,7 @@ def display_json(filename, page): # 顯示 JSON 檔案的內容
                     row+=1 
 
                 elif isinstance(vv, dict): # 如果值是一個字典
-                    ttk.Label(page, text=kk+": ").grid(column=0, row=row, sticky="W") # 則使用 ttk.Label 顯示鍵和值，使用 grid 函數定位元件。
+                    ttk.Label(page, text=kk+": ").grid(column=0, row=row, sticky="W") 
                     for k, v in vv.items():
                         ttk.Label(page, text=k+": ").grid(column=1, row=row, sticky="W")
                         ttk.Label(page, text=v, wraplength=1000, anchor="w", justify="left").grid(column=2, row=row, sticky="W")
@@ -357,7 +467,7 @@ def display_json(filename, page): # 顯示 JSON 檔案的內容
                     ttk.Label(page, text=kk+": ").grid(column=0, row=row, sticky="W")
                     ttk.Label(page, text=vv, wraplength=1000, anchor="w", justify="left").grid(column=1, row=row, sticky="W")
                     row += 1  
-    
+
 def show_file(filepath):
     if filepath.endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp")):
         # 打開圖片並顯示
@@ -389,12 +499,12 @@ def setCanvas(page) :
 
 root = tk.Tk()
 style = ttk.Style()
-# 背景顏色為淺灰色
-style.configure("Grey.TLabel", background="light grey")
+style.configure("Grey.TLabel", background="light grey") # 背景顏色為淺灰色
 root.title("評分輔助系統")
 #root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
 root.geometry("1200x550")
 
-open_folder()#直接讓使用者上傳資料夾
+open_folder()
 
 root.mainloop()
+
