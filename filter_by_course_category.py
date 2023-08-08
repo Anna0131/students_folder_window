@@ -179,12 +179,7 @@ def display_course_performance(filepath):
             result_code = record["成果類別代碼"]
 
 
-# 顯示 PDF 檔案和名稱
-def display_else_pdf(filename, page, row):
-    ttk.Label(page, text=filename).grid(column=0, row=row, sticky="W")
-    button = tk.Button(page, text="顯示檔案", command=lambda: show_file(filename))
-    button.grid(column=1, row=row, sticky="W")
-    row += 1
+
 
 
 # 修課紀錄頁面
@@ -609,7 +604,12 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                     ).grid(column=1, row=row, sticky="W")
                     row += 1
 
-
+# 顯示 PDF 檔案和名稱
+def display_else_pdf(filename, page, row):
+    ttk.Label(page, text=filename).grid(column=0, row=row, sticky="W")
+    button = tk.Button(page, text="顯示檔案", command=lambda: show_file(filename))
+    button.grid(column=1, row=row, sticky="W")
+    row += 1
 def show_file(filepath):
     if filepath.endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp")):
         # 打開圖片並顯示
