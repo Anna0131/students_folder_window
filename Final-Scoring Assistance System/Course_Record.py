@@ -47,6 +47,7 @@ def create_json_table(filename, tree):
 
     # 課程領域
     domains = [
+        "全部",
         "語文領域",
         "數學領域",
         "社會領域",
@@ -56,10 +57,11 @@ def create_json_table(filename, tree):
         "科技領域",
         "健康與體育領域",
         "全民國防教育",
+        "校訂必修及選修", "專業及實習科目(技高)、專精科目(綜高)"
     ]
 
     # 課程類別
-    others_domains = ["校訂必修及選修", "專業及實習科目(技高)、專精科目(綜高)"]
+    #others_domains = ["校訂必修及選修", "專業及實習科目(技高)、專精科目(綜高)"]
 
     # 從課程代碼得到課程領域名稱
     def get_domain(record):
@@ -93,7 +95,7 @@ def create_json_table(filename, tree):
     domain_filter_frame.pack(side=tk.BOTTOM, fill=tk.X)  # 該 Frame 在 tree 中的位置
 
     domain_label = ttk.Label(
-        domain_filter_frame, text="八大領域一般課程"
+        domain_filter_frame, text="篩選課程"
     )  
     domain_label.pack(anchor="w", side=tk.LEFT)
 
@@ -104,6 +106,7 @@ def create_json_table(filename, tree):
     domain_filter.pack(anchor="w", side=tk.LEFT)
 
     # 新增下拉選單 "其他多元特色及專業課程"
+    """
     other_courses_frame = ttk.Frame(domain_filter_frame)
     other_courses_frame.pack(side=tk.RIGHT, fill=tk.X)
 
@@ -113,21 +116,31 @@ def create_json_table(filename, tree):
     other_courses_filter = ttk.Combobox(domain_filter_frame, values=others_domains)
     other_courses_filter.pack(anchor="w", side=tk.LEFT)
 
+    """
+    
     # 根據選擇的領域 篩選符合條件的課程資料並顯示在頁面
     def on_domain_select(event):
         selected_value = domain_filter.get()
-        filter_courses_by_domain(records, tree, domain_filter, selected_value, 1)
+        if (selected_value == "校訂必修及選修" or 
+            selected_value == "專業及實習科目(技高)" or 
+            selected_value == "專精科目(綜高)"):     
+            filter_courses_by_domain(records, tree, domain_filter, selected_value, 2)
+        elif (selected_value=="全部"):
+            filter_courses_by_domain(records, tree, domain_filter, selected_value, 0)
+        else:
+            filter_courses_by_domain(records, tree, domain_filter, selected_value, 1)
     domain_filter.bind(
         "<<ComboboxSelected>>", on_domain_select
     )  
     # 當使用者選擇其他多元特色及專業課程下拉選單
+    """
     def on_other_courses_select(event):
         other_selected_value = other_courses_filter.get()
         filter_courses_by_domain(
             records, tree, other_courses_filter, other_selected_value, 2
         )
     other_courses_filter.bind("<<ComboboxSelected>>", on_other_courses_select)
-
+    """
     # 表格欄位 = "學年度", "學期", "課程類別", "科目名稱", "學分數", "學業成績", "推估相對表現"
     for record in records:
         score = int(record["學業成績"]["分數"])
@@ -157,7 +170,8 @@ def create_json_table(filename, tree):
                 and (record["課程代碼"][16] == "1" or record["課程代碼"][16] == "3")
                 and record["課程代碼"][-5] == "1"  # 課程類別為部定必修、選修-加深加廣選修  # 科目屬性：一般科目
             ]
-
+        elif num==0: # 全部課程
+            selected_courses = list(records)
         elif num == 2:  # "其他多元特色及專業課程" 下拉選單
             if selected_domain == "校訂必修及選修":
                 selected_courses = [  # 篩選符合選擇的課程
@@ -215,7 +229,6 @@ def create_json_table(filename, tree):
             ]
             tree.insert("", "end", values=row)
 
-
 def sort_treeview(tree, col, reverse):
     def convert_to_float_with_percent(value):
         # 移除百分比符號並轉換為浮點數
@@ -234,5 +247,10 @@ def sort_treeview(tree, col, reverse):
     for index, item in enumerate(data):
         tree.move(item[1], "", index)  # 重新排列 tree 中的行
 
-    # 更改欄位標題的點擊事件，切換排序順序
-    tree.heading(col, command=lambda: sort_treeview(tree, col, not reverse))
+    # 重設所有欄位標題，刪除箭頭符號
+    for col_id in tree["columns"]:
+        tree.heading(col_id, text=col_id)
+
+    # 在點擊的欄位上顯示箭頭
+    arrow = " ↓" if reverse else " ↑"
+    tree.heading(col, text=col + arrow, command=lambda: sort_treeview(tree, col, not reverse))

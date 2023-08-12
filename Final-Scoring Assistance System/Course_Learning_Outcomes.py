@@ -12,11 +12,11 @@ import Audio_video_scrolling
 # 課程學習成果
 # 申請/非申請模式
 
-# 每一筆資料的成果類別代碼
+# 每一筆資料的成果類別代碼 
 def display_course_performance(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    for record in data:
+        data = json.load(f)   
+    for record in data:   
         if "成果類別代碼" in record:
             result_code = record["成果類別代碼"]
 
