@@ -117,10 +117,88 @@ def display_json_mode_two(filename, main_top, main_bottom):
                     row += 1
 
 
+def cadre_level_id_to_crade_level_name(crade_level_id):
+    crade = None
+    if crade_level_id == 1:
+        crade = '校級幹部'
+    elif crade_level_id == 2:
+        crade = '班級幹部'
+    elif crade_level_id == 3:
+        crade = '社團幹部'
+    elif crade_level_id == 4:
+        crade = '實習幹部'
+    elif crade_level_id == 5:
+        crade = '校外自治組織團體'
+    elif crade_level_id == 9:
+        crade = '其他幹部'
+    else:
+        crade = '-'
+    return crade
+
+def team_activity_level_id_to_level_name(level_id):
+    level_name = None
+    if level_id == 1:
+        level_name = '班級活動'
+    elif level_id == 2:
+        level_name = '社團活動'
+    elif level_id == 3:
+        level_name = '學生自治會活動'
+    elif level_id == 4:
+        level_name = '週會'
+    elif level_id == 5:
+        level_name = '講座'
+    elif level_id == 9:
+        level_name = '其他'
+    else:
+        level_name = '-'
+    return level_name
+
+def alternative_learn_level_id_to_level_name(level_id):
+    level_name = None
+    if level_id == 1:
+        level_name = '自主學習'
+    elif level_id == 2:
+        level_name = '選手培訓'
+    elif level_id == 3:
+        level_name = '充實(增廣)課程'
+    elif level_id == 4:
+        level_name = '補強性課程'
+    elif level_id == 5:
+        level_name = '學校特色活動'
+    else:
+        level_name = '-'
+    return level_name
+
+def competition_level_id_to_level_name(level_id):
+    level_name = None
+    if level_id == 1:
+        level_name = '校級'
+    elif level_id == 2:
+        level_name = '縣市級'
+    elif level_id == 3:
+        level_name = '全國'
+    elif level_id == 4:
+        level_name = '國際'
+    else:
+        level_name = '-'
+    return level_name
+
 def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
     with open(filename, "r", encoding="utf-8") as f:
         data = json.load(f)
     row = 0
+    
+    def get_transformed_value(key, value):
+        if key == "幹部等級代碼":
+            return cadre_level_id_to_crade_level_name(value)
+        elif key == "團體活動時間類別代碼":
+            return team_activity_level_id_to_level_name(value)
+        elif key == "彈性學習時間類別代碼":
+            return alternative_learn_level_id_to_level_name(value)
+        elif key == "競賽等級代碼":
+            return competition_level_id_to_level_name(value)
+        else:
+            return value
     # 多元表現=dict / 修課紀錄=dict / 基本資料=dict
     if type(data) == dict:
         for key, value in data.items():  # 字典每一項鍵值對
@@ -133,8 +211,9 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                 )  # 則使用 ttk.Label 顯示鍵和值，使用 grid 函數定位元件。
                 for k, v in value.items():
                     ttk.Label(page, text=k + ": ").grid(column=1, row=row, sticky="W")
+                    transformed_value = get_transformed_value(k, v)
                     ttk.Label(
-                        page, text=v, wraplength=1000, anchor="w", justify="left"
+                        page, text=transformed_value, wraplength=1000, anchor="w", justify="left"
                     ).grid(column=2, row=row, sticky="W")
                     row += 1
             elif isinstance(value, list):  # 如果value是list
@@ -163,9 +242,10 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                             ttk.Label(page, text=kk + ": ").grid(
                                 column=0, row=row, sticky="W"
                             )
+                            transformed_value = get_transformed_value(kk, vv)
                             ttk.Label(
                                 page,
-                                text=vv,
+                                text=transformed_value,
                                 wraplength=1000,
                                 anchor="w",
                                 justify="left",
@@ -173,8 +253,9 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                             row += 1
             else:  # 如果值不是一個字典，則只顯示鍵和值
                 ttk.Label(page, text=key + ": ").grid(column=0, row=row, sticky="W")
+                transformed_value = get_transformed_value(key, value)
                 ttk.Label(
-                    page, text=value, wraplength=1000, anchor="w", justify="left"
+                    page, text=transformed_value, wraplength=1000, anchor="w", justify="left"
                 ).grid(column=1, row=row, sticky="W")
                 row += 1
 

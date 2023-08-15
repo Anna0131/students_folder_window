@@ -104,19 +104,6 @@ def create_json_table(filename, tree):
         domain_filter_frame, values=domains
     )  # 下拉選單的選項為 domains 列表
     domain_filter.pack(anchor="w", side=tk.LEFT)
-
-    # 新增下拉選單 "其他多元特色及專業課程"
-    """
-    other_courses_frame = ttk.Frame(domain_filter_frame)
-    other_courses_frame.pack(side=tk.RIGHT, fill=tk.X)
-
-    other_courses_label = ttk.Label(domain_filter_frame, text="其他多元特色及專業課程")
-    other_courses_label.pack(anchor="w", side=tk.LEFT)
-
-    other_courses_filter = ttk.Combobox(domain_filter_frame, values=others_domains)
-    other_courses_filter.pack(anchor="w", side=tk.LEFT)
-
-    """
     
     # 根據選擇的領域 篩選符合條件的課程資料並顯示在頁面
     def on_domain_select(event):
@@ -132,15 +119,7 @@ def create_json_table(filename, tree):
     domain_filter.bind(
         "<<ComboboxSelected>>", on_domain_select
     )  
-    # 當使用者選擇其他多元特色及專業課程下拉選單
-    """
-    def on_other_courses_select(event):
-        other_selected_value = other_courses_filter.get()
-        filter_courses_by_domain(
-            records, tree, other_courses_filter, other_selected_value, 2
-        )
-    other_courses_filter.bind("<<ComboboxSelected>>", on_other_courses_select)
-    """
+
     # 表格欄位 = "學年度", "學期", "課程類別", "科目名稱", "學分數", "學業成績", "推估相對表現"
     for record in records:
         score = int(record["學業成績"]["分數"])

@@ -78,10 +78,6 @@ def open_folder():
             # 初始畫面顯示第一個學生的資料夾內容
             display_student_data(student_folder[0], mode) 
 
-
-        # 創建用於顯示學生人數的 Label
-        #student_count_label = tk.Label(mode_selection_frame, text=f"學生人數：{len(student_folder)}")
-        #student_count_label.pack(side=tk.RIGHT)  # 顯示在最右邊
         # 創建用於顯示學生人數的 Label
         student_count_label = tk.Label(root, text=f"學生人數：{len(student_folder)}", font=("Helvetica", 12))
         student_count_label.place(relx=1, rely=0, anchor="ne")  # 顯示在右上角
@@ -90,7 +86,6 @@ def open_folder():
         button_width = 0
         for folder in student_folder:
             button_width=max(button_width,len(os.path.basename(folder)))
-        print(button_width)
 
         student_buttons_frame = ttk.Frame(root)
         student_buttons_frame.pack(side=tk.RIGHT, fill="y")
@@ -129,12 +124,37 @@ def display_student_data(folder, choose_mode):
         nb.destroy()
     nb = ttk.Notebook(root)
     current_student_folder = folder  # 更新當前學生資料夾
+    # 創建分頁
+    page_basic_info = ttk.Frame(nb)
+    page_course_records = ttk.Frame(nb)
+    page_course_learning_outcomes = ttk.Frame(nb)
+    page_multidimensional_performance = ttk.Frame(nb)
+    page_multidimensional_performance_summary = ttk.Frame(nb)
+    page_learning_process_self_description = ttk.Frame(nb)
+    page_other_pdf = ttk.Frame(nb)
+
+    # 將分頁添加到 Notebook
+    nb.add(page_basic_info, text="基本資料")
+    nb.add(page_course_records, text="修課紀錄")
+    nb.add(page_course_learning_outcomes, text="課程學習成果")
+    nb.add(page_multidimensional_performance, text="多元表現")
+    nb.add(page_multidimensional_performance_summary, text="多元表現綜整心得.pdf")
+    nb.add(page_learning_process_self_description, text="學習歷程自述.pdf")
+    nb.add(page_other_pdf, text="其他.pdf")
+
+    # 設定分頁的順序
+    nb.tab(page_basic_info, state="normal")
+    nb.tab(page_course_records, state="normal")
+    nb.tab(page_course_learning_outcomes, state="normal")
+    nb.tab(page_multidimensional_performance, state="normal")
+    nb.tab(page_multidimensional_performance_summary, state="normal")
+    nb.tab(page_learning_process_self_description, state="normal")
+    nb.tab(page_other_pdf, state="normal")
     # 學生資料夾的所有檔案
     for filename in os.listdir(folder):
-
         filepath = os.path.join(folder, filename)
-        from_file_display_window.display_file(filename, nb, filepath, choose_mode)
-
+        from_file_display_window.display_file(filename, nb, filepath, choose_mode,page_basic_info,page_course_records,page_course_learning_outcomes,page_multidimensional_performance,page_multidimensional_performance_summary,page_learning_process_self_description,page_other_pdf)
+    
     nb.pack(side=tk.LEFT, fill="both", expand=True)
 
 root = tk.Tk()

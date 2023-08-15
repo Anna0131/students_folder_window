@@ -1,57 +1,45 @@
 import tkinter as tk
 from tkinter import ttk
-import os  # 匯入操作系統功能的模組
-import json  # 匯入處理 JSON 檔案的模組
-import tkinter as tk  # 匯入 Tkinter 模組，用來建立 GUI 程式
-from tkinter import ttk  # 匯入 ttk 模組，提供了一些增強的 GUI 元件
-from tkinter import filedialog  # 匯入 filedialog 模組，提供選擇檔案的對話框功能
-import webbrowser  # 匯入 webbrowser 模組，用來開啟瀏覽器
-from tkinter.scrolledtext import ScrolledText
-from PIL import Image, ImageTk
-from tkinter import *
-from tkinter import messagebox
-import from_file_display_window
-def display_student_data(folder, mode):
-    print(f"Displaying data for student in folder: {folder} with mode: {mode}")
 
+def setCanvas(page):
+    my_canvas = tk.Canvas(page)
+    my_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+    # 垂直捲軸放在右邊
+    v_scrollbar = ttk.Scrollbar(page, orient=tk.VERTICAL, command=my_canvas.yview)
+    v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    my_canvas.configure(yscrollcommand=v_scrollbar.set)
+
+    # 放置內容的內部 frame
+    main = tk.Frame(my_canvas)
+    my_canvas.create_window((0, 0), window=main, anchor="nw")
+
+    # 綁定滑鼠滾輪事件，實現垂直捲動
+    def on_mousewheel(event):
+        my_canvas.yview_scroll(-1 * int(event.delta / 120), "units")
+    my_canvas.bind("<MouseWheel>", on_mousewheel)
+
+    # 當 main 的大小變化時，重新設定畫布的捲動區域，實現捲動效果
+    def configure_canvas(event):
+        my_canvas.configure(scrollregion=my_canvas.bbox("all"))
+    main.bind("<Configure>", configure_canvas)
+
+    return main
+
+# 建立主視窗
 root = tk.Tk()
-base_folder = r"C:\code_practice\json_student\json_student\Final-Scoring Assistance System\000001"
-student_folder = [
-            os.path.join(base_folder, folder)
-            for folder in os.listdir(base_folder)
-            if os.path.isdir(os.path.join(base_folder, folder))
-        ]
-student_folder = ["Student 1", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3", "Student 2", "Student 3"]
 
-student_buttons_frame = ttk.Frame(root)
-student_buttons_frame.pack(side=tk.RIGHT, fill="y")
+# 建立 Notebook
+nb = ttk.Notebook(root)
+nb.pack(fill="both", expand=True)
 
-student_buttons_canvas = tk.Canvas(student_buttons_frame)
-student_buttons_canvas.pack(side=tk.LEFT, fill="y")
+# 建立頁面並加入 Notebook
+page1 = ttk.Frame(nb)
+nb.add(page1, text="Page 1")
+main_content = setCanvas(page1)
 
-student_buttons_scrollbar = ttk.Scrollbar(student_buttons_frame, orient=tk.VERTICAL, command=student_buttons_canvas.yview)
-student_buttons_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-student_buttons_canvas.config(yscrollcommand=student_buttons_scrollbar.set)
-
-student_buttons = ttk.Frame(student_buttons_canvas)
-student_buttons_canvas.create_window((0, 0), window=student_buttons, anchor="nw")
-
-for folder in student_folder:
-    student_name = os.path.basename(folder)
-    ttk.Button(
-        student_buttons,
-        text=student_name,
-        command=lambda f=folder: display_student_data(f, mode),
-    ).pack(side=tk.TOP)
-
-student_buttons.update_idletasks()  # Update canvas to compute proper scroll region
-
-student_buttons_canvas.config(scrollregion=student_buttons_canvas.bbox("all"))
-
-def on_mousewheel(event):
-    student_buttons_canvas.yview_scroll(-1 * int(event.delta / 120), "units")
-
-root.bind("<MouseWheel>", on_mousewheel)  # 綁定滾輪事件
+# 建立一些內容放入 main_content 內
+for i in range(50):
+    tk.Label(main_content, text=f"Label {i}").pack()
 
 root.mainloop()

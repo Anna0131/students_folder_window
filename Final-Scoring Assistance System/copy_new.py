@@ -90,7 +90,6 @@ def open_folder():
         button_width = 0
         for folder in student_folder:
             button_width=max(button_width,len(os.path.basename(folder)))
-        print(button_width)
 
         student_buttons_frame = ttk.Frame(root)
         student_buttons_frame.pack(side=tk.RIGHT, fill="y")
