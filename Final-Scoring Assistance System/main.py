@@ -9,6 +9,8 @@ from PIL import Image, ImageTk
 from tkinter import *
 from tkinter import messagebox
 import from_file_display_window
+
+
 # 使用者上傳資料夾
 # 選擇申請/非申請模式
 # 選擇學生
@@ -19,10 +21,10 @@ mode = None
 
 def open_folder():
     global base_folder, nb, mode,current_student_folder
-    base_folder = r"C:\code_practice\json_student\json_student\Final-Scoring Assistance System\000001"
-    #base_folder = filedialog.askdirectory()  # 讓使用者選擇資料夾
+    #base_folder = r"C:\code_practice\json_student\json_student\Final-Scoring Assistance System\000001"
+    base_folder = filedialog.askdirectory()  # 讓使用者選擇資料夾
     if base_folder:
-        #tk.messagebox.showinfo("操作說明", f"請先點選模式，再點選學生。\n(您選擇的資料夾是：{base_folder}) ")
+        tk.messagebox.showinfo("操作說明", f"請先點選模式，再點選學生。\n(您選擇的資料夾是：{base_folder}) ")
         global nb, mode
         if nb:
             nb.destroy()
@@ -132,8 +134,7 @@ def display_student_data(folder, choose_mode):
     page_multidimensional_performance_summary = ttk.Frame(nb)
     page_learning_process_self_description = ttk.Frame(nb)
     page_other_pdf = ttk.Frame(nb)
-
-    # 將分頁添加到 Notebook
+    
     nb.add(page_basic_info, text="基本資料")
     nb.add(page_course_records, text="修課紀錄")
     nb.add(page_course_learning_outcomes, text="課程學習成果")
@@ -150,6 +151,7 @@ def display_student_data(folder, choose_mode):
     nb.tab(page_multidimensional_performance_summary, state="normal")
     nb.tab(page_learning_process_self_description, state="normal")
     nb.tab(page_other_pdf, state="normal")
+    
     # 學生資料夾的所有檔案
     for filename in os.listdir(folder):
         filepath = os.path.join(folder, filename)

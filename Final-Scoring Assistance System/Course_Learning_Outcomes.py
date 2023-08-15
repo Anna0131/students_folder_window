@@ -9,6 +9,7 @@ from PIL import Image, ImageTk
 from tkinter import *
 from tkinter import messagebox
 import Audio_video_scrolling
+from Audio_video_scrolling import show_file
 # 課程學習成果
 # 申請/非申請模式
 
@@ -56,7 +57,7 @@ def display_json_mode_two(filename, main_top, main_bottom):
                         ttk.Label(
                             main_top,
                             text=v,
-                            wraplength=1000,
+                            wraplength=750,
                             anchor="w",
                             justify="left",
                         ).grid(column=2, row=row, sticky="W")
@@ -66,7 +67,7 @@ def display_json_mode_two(filename, main_top, main_bottom):
                         column=0, row=row, sticky="W"
                     )
                     ttk.Label(
-                        main_top, text=vv, wraplength=1000, anchor="w", justify="left"
+                        main_top, text=vv, wraplength=750, anchor="w", justify="left"
                     ).grid(column=1, row=row, sticky="W")
                     row += 1
         elif category_code == "2":
@@ -98,7 +99,7 @@ def display_json_mode_two(filename, main_top, main_bottom):
                         ttk.Label(
                             main_bottom,
                             text=v,
-                            wraplength=1000,
+                            wraplength=750,
                             anchor="w",
                             justify="left",
                         ).grid(column=2, row=row, sticky="W")
@@ -110,7 +111,7 @@ def display_json_mode_two(filename, main_top, main_bottom):
                     ttk.Label(
                         main_bottom,
                         text=vv,
-                        wraplength=1000,
+                        wraplength=750,
                         anchor="w",
                         justify="left",
                     ).grid(column=1, row=row, sticky="W")
@@ -213,7 +214,7 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                     ttk.Label(page, text=k + ": ").grid(column=1, row=row, sticky="W")
                     transformed_value = get_transformed_value(k, v)
                     ttk.Label(
-                        page, text=transformed_value, wraplength=1000, anchor="w", justify="left"
+                        page, text=transformed_value, wraplength=750, anchor="w", justify="left"
                     ).grid(column=2, row=row, sticky="W")
                     row += 1
             elif isinstance(value, list):  # 如果value是list
@@ -246,7 +247,7 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                             ttk.Label(
                                 page,
                                 text=transformed_value,
-                                wraplength=1000,
+                                wraplength=750,
                                 anchor="w",
                                 justify="left",
                             ).grid(column=1, row=row, sticky="W")
@@ -255,7 +256,7 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                 ttk.Label(page, text=key + ": ").grid(column=0, row=row, sticky="W")
                 transformed_value = get_transformed_value(key, value)
                 ttk.Label(
-                    page, text=transformed_value, wraplength=1000, anchor="w", justify="left"
+                    page, text=transformed_value, wraplength=750, anchor="w", justify="left"
                 ).grid(column=1, row=row, sticky="W")
                 row += 1
 
@@ -284,12 +285,12 @@ def display_json_mode_one(filename, page):  # 顯示 JSON 檔案的內容
                             column=1, row=row, sticky="W"
                         )
                         ttk.Label(
-                            page, text=v, wraplength=1000, anchor="w", justify="left"
+                            page, text=v, wraplength=750, anchor="w", justify="left"
                         ).grid(column=2, row=row, sticky="W")
                         row += 1
                 else:  # 如果值不是一個字典，則只顯示鍵和值
                     ttk.Label(page, text=kk + ": ").grid(column=0, row=row, sticky="W")
                     ttk.Label(
-                        page, text=vv, wraplength=1000, anchor="w", justify="left"
+                        page, text=vv, wraplength=750, anchor="w", justify="left"
                     ).grid(column=1, row=row, sticky="W")
                     row += 1
