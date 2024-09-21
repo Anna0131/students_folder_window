@@ -1,3 +1,8 @@
+# 系統畫面
+![image](https://github.com/user-attachments/assets/005508cf-6c0b-4392-8e0f-9ccc7b3c8c63)
+![評分審查基本](https://github.com/user-attachments/assets/4c9547c4-935a-4003-ba7b-8ed9dfdb9b54)
+
+
 # JSON分割資料/圖片顯示
 
 ### 程式功能說明
